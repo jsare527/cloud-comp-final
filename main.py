@@ -66,6 +66,7 @@ def signup():
 @login_required
 def get_weather():
     city = request.args.get('city')
+    print(city)
     url = f'{BASE_URL}?q={city}&appid={API_KEY}'
     response = requests.get(url)
     if response.status_code == 200:
