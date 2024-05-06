@@ -5,8 +5,8 @@ import os
 import requests
 from dbAccess import Db
 
-API_KEY = '597e4c9040923b82001357d120fa3a0e'
-BASE_URL = 'https://api.openweathermap.org/data/3.0/weather'
+API_KEY = '299a6162e66f693c89ba683d75ef64e7'
+BASE_URL = 'https://api.openweathermap.org/data/2.5/weather'
 
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = os.urandom(12).hex()
