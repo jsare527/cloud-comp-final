@@ -24,9 +24,12 @@
                 .then(response => response.json())
                 .then(data => {
                     const weatherInfoDiv = document.getElementById('weatherInfo');
+                    const iconCode = data.weather[0].icon; 
+                    const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`; 
                     weatherInfoDiv.innerHTML = `<h2 class="mt-4">Weather Information for ${data.name}</h2>
                                                 <p>Temperature: ${data.main.temp} °F</p>
                                                 <p>Description: ${data.weather[0].description}</p>
+                                                <img src="${iconUrl}" alt="Weather Icon"> 
                                                 <p>Humidity: ${data.main.humidity}%</p>
                                                 <p>Wind Speed: ${data.wind.speed} mph</p>
                                                 <p>Sunrise: ${new Date(data.sys.sunrise * 1000).toLocaleTimeString()}</p>
