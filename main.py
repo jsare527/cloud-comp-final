@@ -1,8 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 import mariadb
 import os
+import requests
 from dbAccess import Db
+
+API_KEY = '597e4c9040923b82001357d120fa3a0e'
+BASE_URL = 'https://api.openweathermap.org/data/3.0/weather'
 
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = os.urandom(12).hex()
@@ -57,6 +61,18 @@ def signup():
         
     return render_template('signup.html', message=err)
 #endregion
+
+@app.route('/weather', methods=['GET'])
+@login_required
+def get_weather():
+    city = request.args.get('city')
+    url = f'{BASE_URL}?q={city}&appid={API_KEY}'
+    response = requests.get(url)
+    if response.status_code == 200:
+        weather_data = response.json()
+        return jsonify(weather_data)
+    else:
+        return jsonify({'error': 'Failed to fetch weather data'})
 
 @app.route('/')
 @login_required

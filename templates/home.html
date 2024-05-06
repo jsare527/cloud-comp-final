@@ -1,5 +1,39 @@
-{%extends 'base.html'%}
-{%block title%} Home {%endblock%}
+<!-- home.html -->
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+
 {% block body %}
-<h1>HOME PAGE</h1>
+    <div class="container">
+        <h1 class="mt-4">Welcome, {{ current_user.username }}!</h1>
+        
+        <form id="weatherForm" class="mt-4">
+            <div class="form-group">
+                <label for="city">Enter city name:</label>
+                <input type="text" class="form-control" id="city" name="city" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Get Weather</button>
+        </form>
+
+        <div id="weatherInfo" class="mt-4"></div>
+    </div>
+
+    <script>
+        document.getElementById('weatherForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const city = document.getElementById('city').value;
+            fetch(`/weather?city=${city}`)
+                .then(response => response.json())
+                .then(data => {
+                    const weatherInfoDiv = document.getElementById('weatherInfo');
+                    weatherInfoDiv.innerHTML = `<h2 class="mt-4">Weather Information for ${data.name}</h2>
+                                                <p>Temperature: ${data.main.temp} °C</p>
+                                                <p>Description: ${data.weather[0].description}</p>`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const weatherInfoDiv = document.getElementById('weatherInfo');
+                    weatherInfoDiv.innerHTML = '<p class="mt-4">Error fetching weather data</p>';
+                });
+        });
+    </script>
 {% endblock %}
