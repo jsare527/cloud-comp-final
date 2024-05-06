@@ -68,6 +68,7 @@ def get_weather():
     city = request.args.get('city')
     print(city)
     url = f'{BASE_URL}?q={city}&appid={API_KEY}'
+    print(url)
     response = requests.get(url)
     if response.status_code == 200:
         weather_data = response.json()
