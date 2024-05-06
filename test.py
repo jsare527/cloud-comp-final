@@ -4,7 +4,7 @@ import bcrypt
 conn = mariadb.connect(user='root',
                        host='localhost',
                        database = 'cloudcomp',
-                       password='Chance527!',
+                       password='Test1234!',
                        )
 
 dbcursor = conn.cursor()

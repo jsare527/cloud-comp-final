@@ -8,7 +8,7 @@ class Db:
                                user='root',
                                host='localhost',
                                database = 'cloudcomp',
-                               password='Chance527!'
+                               password='Test1234!'
                                 )
 
         self.dbcursor = self.conn.cursor()
