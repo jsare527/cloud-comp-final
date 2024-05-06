@@ -4,7 +4,7 @@ import bcrypt
 conn = mariadb.connect(user='root',
                        host='localhost',
                        database = 'cloudcomp',
-                       password='Test1234!',
+                       password='Chance527!',
                        )
 
 dbcursor = conn.cursor()
@@ -14,11 +14,8 @@ def selectUser(username):
     select_data = (username,)
     dbcursor.execute(select_query, select_data)
     user = dbcursor.fetchone()
-    hashpw = str(user[2]).encode('utf-8')
-    print(user)
-    #print(bcrypt.checkpw("chance52".encode('utf-8'), hashpw))
-    dbcursor.close()
-    conn.close()
+    return user
+
 
 def createUser(username, password, email):
     encodedPass = password.encode('utf-8')
@@ -28,8 +25,31 @@ def createUser(username, password, email):
     user_data = (username, hashpass.decode('utf-8'), email)
     dbcursor.execute(add_user, user_data)
     conn.commit()
-    dbcursor.close()
-    conn.close()
     
+def insertCity(username, cityname):
+    user = selectUser(username)
+    if user:
+        userId = user[0]
+        data = (cityname, userId)
+        delete_query = "DELETE FROM Cities WHERE CityName=%s AND userid=%s"
+        insert_query = "INSERT INTO Cities (CityName, userid) VALUES (%s, %s)"
+        dbcursor.execute(delete_query, data)
+        dbcursor.execute(insert_query, data)
+        conn.commit()
+
+def getUserCities(username):
+    user = selectUser(username)
+    if user:
+        userId = user[0]
+        select_query = "SELECT * FROM Cities WHERE userid=%s ORDER BY city_id desc LIMIT 5"
+        dbcursor.execute(select_query, (userId,))
+        cities = dbcursor.fetchall()
+        print(cities)
+
+insertCity("jsare", "Omaha")
+getUserCities("jsare")
+
+dbcursor.close()
+conn.close()
 #createUser("jurhe2", "chancy4", "bruh@gmail.com")
-selectUser("jurhe2")
+#selectUser("jurhe2")

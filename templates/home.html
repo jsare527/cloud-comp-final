@@ -1,45 +1,128 @@
 {% extends 'base.html' %}
 {% block title %}Home{% endblock %}
 
-{% block body %}
-    <div class="container">
-        <h1 class="mt-4">Welcome, {{ current_user.username }}!</h1>
-        
-        <form id="weatherForm" class="mt-4">
-            <div class="form-group">
-                <label for="city">Enter city name:</label>
-                <input type="text" class="form-control" id="city" name="city" required>
+{% block body %}    
+    <div class="row">
+        <div class="col-3">
+            <div class="card text-white" style="background-color: #454545;">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Recent Searches
+                    </h5>
+                    <ul id="recentCities">
+                    </ul>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Get Weather</button>
-        </form>
-
-        <div id="weatherInfo" class="mt-4"></div>
+        </div>
+        <div class="col-9">
+            <div class="card text-white" style="background-color: #454545;">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Enter City Name
+                    </h5>
+                    <form id="weatherForm" class="mt-4">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="city" name="city" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="submitForm" style="margin-top: 19px;">Get Weather</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <div class="card text-white mt-3" id="weatherInfoCard" style="background-color: #454545;" hidden>
+        <div class="card-body">
+            <h5 class="card-title" id="cityName">
+            </h5>
+            <div class="row mt-5 text-white" id="weatherInfo">
+            </div>
+        </div>
+    </div>
+
+    {% block script %}
     <script>
+        function recentCity(cityName){
+            $('#city').val(`${cityName}`);
+            $('#submitForm').click();
+        }
+
+        function getRecentCities(){
+            $('#recentCities').empty();
+            fetch('/recent_cities')
+            .then(res => res.json())
+            .then(cities => {
+                cities.forEach(city => {
+                    $('#recentCities').append(`<li><button class="btn btn-xs btn-primary" onclick="recentCity('${city}');">${city}</button></li>`);
+                });
+            });
+        }
+
+        $(document).ready(function() {
+            getRecentCities();
+        });
+
         document.getElementById('weatherForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const city = document.getElementById('city').value;
             fetch(`/weather?city=${city}`)
                 .then(response => response.json())
                 .then(data => {
+                    const cityNameDiv = document.getElementById('cityName');
                     const weatherInfoDiv = document.getElementById('weatherInfo');
                     const iconCode = data.weather[0].icon; 
                     const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`; 
-                    weatherInfoDiv.innerHTML = `<h2 class="mt-4">Weather Information for ${data.name}</h2>
-                                                <p>Temperature: ${data.main.temp} °F</p>
-                                                <p>Description: ${data.weather[0].description}</p>
-                                                <img src="${iconUrl}" alt="Weather Icon"> 
-                                                <p>Humidity: ${data.main.humidity}%</p>
-                                                <p>Wind Speed: ${data.wind.speed} mph</p>
-                                                <p>Sunrise: ${new Date(data.sys.sunrise * 1000).toLocaleTimeString()}</p>
-                                                <p>Sunset: ${new Date(data.sys.sunset * 1000).toLocaleTimeString()}</p>`;
+                    cityNameDiv.innerHTML = `
+                    <div class="col text-center" >
+                        <h2>Weather Information for ${data.name}</h2>
+                    </div>`;
+                    weatherInfoDiv.innerHTML = 
+                    `
+                    <div class="col-4">
+                        <div class="form-group text-center">
+                            <label for="currentTemp" class="control-label">Current Temperature</label>
+                            <h5 id="currentTemp"> ${Math.round(data.main.temp)}&deg;F</h5>
+                        </div>
+                        <div class="form-group text-center">
+                            <label for="humidity" class="control-label">Humidity</label>
+                            <h5 id="humidity"> ${Math.round(data.main.humidity)}% </h5>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group text-center">
+                            <img src="${iconUrl}" alt="Weather Icon">
+                            <h5>${data.weather[0].description}</h5>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group text-center">
+                            <label for="windSpeed" class="control-label">Wind Speed</label>
+                            <h5 id="windSpeed"> ${Math.round(data.wind.speed)} mph </h5>
+                        </div>
+                        <div class="form-group">
+                            <div class="row text-center mt-4">
+                                <div class="col-6">
+                                    <label for="sunrise" class="control-label">Sunrise</label>
+                                    <h5 id="sunrise">${new Date(data.sys.sunrise * 1000).toLocaleTimeString()}</h5>
+                                </div>
+                                <div class="col-6">
+                                    <label for="sunset" class="control-label">Sunset</label>
+                                    <h5 id="sunset">${new Date(data.sys.sunset * 1000).toLocaleTimeString()}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                    $('#weatherInfoCard').removeAttr('hidden');
+                    getRecentCities();
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     const weatherInfoDiv = document.getElementById('weatherInfo');
                     weatherInfoDiv.innerHTML = '<p class="mt-4">Error fetching weather data</p>';
                 });
+
         });
     </script>
+    {% endblock %}
 {% endblock %}
